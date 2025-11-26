@@ -12,6 +12,10 @@ Rust 版本的 fastp 重写实现（rewrite）。本项目以高性能与可维�
 
 > 说明：本项目是对原工具 fastp 的 Rust 重写（rewrite），在不改变基本使用习惯的前提下，针对多核 CPU 和高并发 I/O 场景进行了优化。
 
+## 上游项目链接
+
+- 原 fastp 项目仓库：https://github.com/OpenGene/fastp
+
 ## 构建
 
 ```bash
@@ -115,4 +119,3 @@ cargo build --release
 ## 许可
 
 依据原 fastp 的许可情况对本项目进行相应设置（如需调整请在创建 GitHub 仓库后补充 License）。
-
