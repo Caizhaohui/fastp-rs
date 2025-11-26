@@ -63,11 +63,11 @@ cargo build --release
 tee >(pigz -p 24 > out1.fq.gz) >(pigz -p 24 > out2.fq.gz) > /dev/null
 ```
 
-## Slurm 示例脚本（qcpu_18i）
+## Slurm 示例脚本（示例分区）
 
 ```bash
 #!/usr/bin/env bash
-#SBATCH -p qcpu_18i
+#SBATCH -p <your_partition>
 #SBATCH -c 24
 #SBATCH --mem=64G
 #SBATCH -J fastp_rs_pool
@@ -118,4 +118,5 @@ cargo build --release
 
 ## 许可
 
-依据原 fastp 的许可情况对本项目进行相应设置（如需调整请在创建 GitHub 仓库后补充 License）。
+本项目遵循与上游 fastp 一致的许可协议（请参见 OpenGene/fastp 仓库中的 License 声明）。
+如需在本仓库中展示完整 License 内容，请在创建仓库后同步添加相同的 License 文件。
