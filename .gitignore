@@ -1,0 +1,9 @@
+target/
+**/*.o
+**/*.so
+**/*.d
+*.fq
+*.fq.gz
+*.html
+*.json
+
