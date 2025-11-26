@@ -1,0 +1,11 @@
+/hpcfs/fhome/caizhh/Desktop/02_Rewrite_By_Rust/fastp-rs/target/debug/deps/fastp_rs-b64807beef4e483b.d: src/main.rs src/config.rs src/fastq/mod.rs src/filter/mod.rs src/filter/matcher.rs src/filter/adapter_trimmer.rs src/filter/sliding_window.rs
+
+/hpcfs/fhome/caizhh/Desktop/02_Rewrite_By_Rust/fastp-rs/target/debug/deps/fastp_rs-b64807beef4e483b: src/main.rs src/config.rs src/fastq/mod.rs src/filter/mod.rs src/filter/matcher.rs src/filter/adapter_trimmer.rs src/filter/sliding_window.rs
+
+src/main.rs:
+src/config.rs:
+src/fastq/mod.rs:
+src/filter/mod.rs:
+src/filter/matcher.rs:
+src/filter/adapter_trimmer.rs:
+src/filter/sliding_window.rs:

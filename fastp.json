@@ -1,0 +1,12 @@
+{
+  "total_reads": 1,
+  "passed_reads": 0,
+  "failed_too_short": 1,
+  "failed_low_quality": 0,
+  "failed_n_excess": 0,
+  "failed_low_average_qual": 0,
+  "adapter_trimmed_reads": 0,
+  "adapter_trimmed_bases": 0,
+  "poly_g_trimmed_reads": 1,
+  "poly_g_trimmed_bases": 39
+}
