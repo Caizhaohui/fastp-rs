@@ -2,6 +2,8 @@
 
 Rust 版本的 fastp 重写实现（rewrite）。本项目以高性能与可维护性为目标，复刻并增强原工具 fastp 的核心功能：
 
+## 主要功能
+
 - 多线程流水线：Reader → Worker → Writer，基于通道并发
 - 成对（PE）重叠纠错与统计：支持重叠区域的差异统计与平均差
 - PolyX/PolyG 裁剪与质量过滤
@@ -65,7 +67,6 @@ tee >(pigz -p 24 > out1.fq.gz) >(pigz -p 24 > out2.fq.gz) > /dev/null
 
 ## Slurm 示例脚本（示例分区）
 
-```bash
 可以用 Rust 子命令生成 sbatch 脚本，减少脚本体量：
 
 ```bash
@@ -74,7 +75,6 @@ FASTP_RS_CMD=emit_sbatch FASTP_RS_PARTITION=<your_partition> FASTP_RS_CPUS=24 FA
 ```
 
 生成的 `run_fastp_rs.sbatch` 包含构建与运行指令，你可以直接 `sbatch run_fastp_rs.sbatch`。
-```
 
 ## 参数说明（核心）
 
@@ -86,6 +86,14 @@ FASTP_RS_CMD=emit_sbatch FASTP_RS_PARTITION=<your_partition> FASTP_RS_CPUS=24 FA
 - `--json`、`--html`：报告文件路径，HTML 包含 PolyX/PolyG 与 PE Overlap 统计
 - `-x, --poly_x_min_len`、`--trim_poly_g --poly_g_min_len`：PolyX/PolyG 裁剪阈值
 - `-c, --correction`、`--overlap_len_require`、`--overlap_diff_limit`、`--overlap_diff_percent_limit`：PE 重叠纠错与统计参数
+
+### 滑窗剪切参数
+
+- `--cut_front`、`--cut_tail`、`--cut_right`：启用前端/尾端/右端剪切
+- `--cut_window_size`、`--cut_mean_quality`：通用剪切窗口大小与质量阈值
+- `--cut_front_window_size`、`--cut_front_mean_quality`：前端独立窗口与质量阈值
+- `--cut_tail_window_size`、`--cut_tail_mean_quality`：尾端独立窗口与质量阈值
+- `--cut_right_window_size`、`--cut_right_mean_quality`：右端独立窗口与质量阈值
 
 ## 优化与实现细节
 

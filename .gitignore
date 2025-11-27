@@ -6,4 +6,4 @@ target/
 *.fq.gz
 *.html
 *.json
-
+fastp-master/
