@@ -95,6 +95,47 @@ FASTP_RS_CMD=emit_sbatch FASTP_RS_PARTITION=<your_partition> FASTP_RS_CPUS=24 FA
 - `--cut_tail_window_size`、`--cut_tail_mean_quality`：尾端独立窗口与质量阈值
 - `--cut_right_window_size`、`--cut_right_mean_quality`：右端独立窗口与质量阈值
 
+### 输入与输出
+
+- `-i, --in1`、`-I, --in2`：输入文件（SE 使用 `in1`，PE 使用 `in1`+`in2`）
+- `-o, --out1`、`-O, --out2`：输出文件（SE 使用 `out1`，PE 使用 `out1`+`out2`）
+- `--stdin`、`--stdout`：从标准输入读取/向标准输出写出（适合管道串联）
+
+### 质量过滤参数（与 fastp 对齐）
+
+- `-l, --length_required`：最小读长，短于该值的序列被过滤
+- `-q, --qualified_quality_phred`：合格碱基的质量阈值（Phred）
+- `-u, --unqualified_percent_limit`：不合格碱基比例上限（%）
+- `-e, --average_qual`：平均质量阈值（为 0 表示不启用）
+- `-n, --n_base_limit`：允许的 `N` 碱基最多个数
+
+### 适配子剪切
+
+- `-A, --disable_adapter_trimming`：禁用适配子剪切
+- `-a, --adapter_sequence`：指定 R1 的适配子序列
+- `--adapter_sequence_r2`：指定 R2 的适配子序列
+
+### PolyX/PolyG 参数
+
+- `-x, --trim_poly_x`、`--poly_x_min_len`：启用 PolyX 剪切及最小长度
+- `--trim_poly_g`、`--poly_g_min_len`、`-G, --disable_trim_poly_g`：PolyG 剪切与禁用选项
+
+### 报告
+
+- `-j, --json`、`--html`：报告文件输出路径
+- `-R, --report_title`：HTML 报告标题
+
+### 流式使用示例
+
+```bash
+# 以管道方式处理 gzip 压缩的输入，并写回 stdout
+zcat R1.fq.gz | ./target/release/fastp_rs --stdin --stdout -w 24 -z 1 -x --poly_x_min_len 10 | pigz -p 24 > out1.fq.gz
+
+# PE 管道示例（分别从两个进程供给），或结合进程替换
+paste <(zcat R1.fq.gz) <(zcat R2.fq.gz) | ./target/release/fastp_rs --stdin --stdout -w 24 -z 1 \
+  -c --overlap_len_require 30 --overlap_diff_limit 5 --overlap_diff_percent_limit 20 | pigz -p 24 > out_pair.fq.gz
+```
+
 ## 优化与实现细节
 
 - Reader：`BufRead::read_line` 批量读取、复用缓冲，减少 String 分配与系统调用
