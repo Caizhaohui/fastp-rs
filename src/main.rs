@@ -21,6 +21,7 @@ use crate::threading::{Pack, ProcessedPack};
 use crate::html_report::write_html_report;
 use crate::compress::CompressionPool;
 use std::io::Write as IoWrite;
+use clap::Subcommand;
 // use serde::Serialize;
 
 // Helper for ordering ProcessedPack in BinaryHeap (MinHeap)
@@ -44,8 +45,42 @@ impl Ord for OrderedPack {
     }
 }
 
+#[derive(Subcommand, Debug, Clone)]
+enum Cmd {
+    EmitSbatch {
+        #[arg(long="partition", default_value = "<your_partition>")]
+        partition: String,
+        #[arg(long="cpus", default_value_t = 24)]
+        cpus: usize,
+        #[arg(long="mem", default_value = "64G")]
+        mem: String,
+    },
+    Run,
+}
+
 fn main() -> io::Result<()> {
-    let cli = Cli::parse();
+    let mut cli = Cli::parse();
+    // simple subcommand via env var FASTP_RS_CMD, to avoid extra clap changes to Cli
+    if let Ok(cmd) = std::env::var("FASTP_RS_CMD") {
+        match cmd.as_str() {
+            "emit_sbatch" => {
+                let partition = std::env::var("FASTP_RS_PARTITION").unwrap_or_else(|_| "<your_partition>".to_string());
+                let cpus: usize = std::env::var("FASTP_RS_CPUS").ok().and_then(|v| v.parse().ok()).unwrap_or(24);
+                let mem = std::env::var("FASTP_RS_MEM").unwrap_or_else(|_| "64G".to_string());
+                let script = format!("#!/usr/bin/env bash\n#SBATCH -p {partition}\n#SBATCH -c {cpus}\n#SBATCH --mem={mem}\n#SBATCH -J fastp_rs_pool\n#SBATCH -o fastp_rs.%j.out\n#SBATCH -e fastp_rs.%j.err\ncd \"$SLURM_SUBMIT_DIR\"\n\nP={cpus}\nPACK={pack}\nQD={qd}\nZ={z}\n\ncargo build --release\n/usr/bin/time -v ./target/release/fastp_rs \\\n  -i R1.fq.gz -I R2.fq.gz \\\n  -o out1.fq.gz -O out2.fq.gz \\\n  --json fastp.json --html fastp.html \\\n  -w $P --pack_size $PACK --queue_depth $QD -z $Z \\\n  -x --poly_x_min_len 10 \\\n  --trim_poly_g --poly_g_min_len 10 \\\n  -c --overlap_len_require 30 \\\n     --overlap_diff_limit 5 \\\n     --overlap_diff_percent_limit 20\n",
+                    partition=partition,
+                    cpus=cpus,
+                    mem=mem,
+                    pack=cli.pack_size,
+                    qd=if cli.queue_depth == 0 { (if cli.thread==0 { num_cpus::get() } else { cli.thread })*4 } else { cli.queue_depth },
+                    z=cli.compression,
+                );
+                println!("{}", script);
+                return Ok(());
+            },
+            _ => {}
+        }
+    }
     let thread_num = if cli.thread == 0 { num_cpus::get() } else { cli.thread };
     let pack_size = if cli.pack_size == 0 { 1000 } else { cli.pack_size };
 

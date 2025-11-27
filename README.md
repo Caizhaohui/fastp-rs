@@ -66,31 +66,14 @@ tee >(pigz -p 24 > out1.fq.gz) >(pigz -p 24 > out2.fq.gz) > /dev/null
 ## Slurm 示例脚本（示例分区）
 
 ```bash
-#!/usr/bin/env bash
-#SBATCH -p <your_partition>
-#SBATCH -c 24
-#SBATCH --mem=64G
-#SBATCH -J fastp_rs_pool
-#SBATCH -o fastp_rs.%j.out
-#SBATCH -e fastp_rs.%j.err
-cd "$SLURM_SUBMIT_DIR"
+可以用 Rust 子命令生成 sbatch 脚本，减少脚本体量：
 
-P=24
-PACK=30000
-QD=96
-Z=1
+```bash
+FASTP_RS_CMD=emit_sbatch FASTP_RS_PARTITION=<your_partition> FASTP_RS_CPUS=24 FASTP_RS_MEM=64G \
+  ./target/release/fastp_rs --pack_size 30000 --queue_depth 96 -z 1 > run_fastp_rs.sbatch
+```
 
-cargo build --release
-/usr/bin/time -v ./target/release/fastp_rs \
-  -i R1.fq.gz -I R2.fq.gz \
-  -o out1.fq.gz -O out2.fq.gz \
-  --json fastp.json --html fastp.html \
-  -w ${P} --pack_size ${PACK} --queue_depth ${QD} -z ${Z} \
-  -x --poly_x_min_len 10 \
-  --trim_poly_g --poly_g_min_len 10 \
-  -c --overlap_len_require 30 \
-     --overlap_diff_limit 5 \
-     --overlap_diff_percent_limit 20
+生成的 `run_fastp_rs.sbatch` 包含构建与运行指令，你可以直接 `sbatch run_fastp_rs.sbatch`。
 ```
 
 ## 参数说明（核心）
